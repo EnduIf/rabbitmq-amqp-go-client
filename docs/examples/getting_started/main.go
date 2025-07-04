@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	rmq "github.com/rabbitmq/rabbitmq-amqp-go-client/pkg/rabbitmqamqp"
+	rmq "github.com/enduif/rabbitmq-amqp-go-client/pkg/rabbitmqamqp"
 	"time"
 )
 
@@ -180,6 +180,18 @@ func main() {
 	if err != nil {
 		rmq.Error("Error deleting exchange: %v\n", err)
 		return
+	}
+
+	// Get all queues from RabbitMQ
+	queues, err := management.GetQueues(context.TODO())
+	if err != nil {
+		rmq.Error("Error getting queues: %v\n", err)
+		return
+	}
+	rmq.Info("Found %d queues:\n", len(queues))
+	for _, q := range queues {
+		rmq.Info("Queue: %s, Type: %s, Messages: %d, Consumers: %d\n",
+			q.Name(), q.Type(), q.MessageCount(), q.ConsumerCount())
 	}
 
 	// Purge the queue

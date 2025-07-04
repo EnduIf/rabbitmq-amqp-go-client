@@ -5,10 +5,10 @@ package rabbitmqamqp
 import (
 	"context"
 	"encoding/base64"
+	testhelper "github.com/enduif/rabbitmq-amqp-go-client/pkg/test-helper"
 	"github.com/golang-jwt/jwt/v5"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	testhelper "github.com/rabbitmq/rabbitmq-amqp-go-client/pkg/test-helper"
 	"math/rand"
 	"time"
 )

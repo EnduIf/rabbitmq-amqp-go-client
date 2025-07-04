@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	rmq "github.com/rabbitmq/rabbitmq-amqp-go-client/pkg/rabbitmqamqp"
+	rmq "github.com/enduif/rabbitmq-amqp-go-client/pkg/rabbitmqamqp"
 )
 
 func main() {

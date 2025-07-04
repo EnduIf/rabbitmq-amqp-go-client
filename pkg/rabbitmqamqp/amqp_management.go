@@ -200,6 +200,9 @@ func (a *AmqpManagement) DeclareExchange(ctx context.Context, exchangeSpecificat
 	exchange := newAmqpExchange(a, exchangeSpecification.name())
 	exchange.AutoDelete(exchangeSpecification.isAutoDelete())
 	exchange.ExchangeType(exchangeSpecification.exchangeType())
+	if exchangeSpecification.arguments() != nil {
+		exchange.arguments = exchangeSpecification.arguments()
+	}
 	return exchange.Declare(ctx)
 }
 
@@ -217,8 +220,10 @@ func (a *AmqpManagement) Bind(ctx context.Context, bindingSpecification IBinding
 	bind.SourceExchange(bindingSpecification.sourceExchange())
 	bind.Destination(bindingSpecification.destination(), bindingSpecification.isDestinationQueue())
 	bind.BindingKey(bindingSpecification.bindingKey())
+	if bindingSpecification.arguments() != nil {
+		bind.SetArguments(bindingSpecification.arguments())
+	}
 	return bind.Bind(ctx)
-
 }
 func (a *AmqpManagement) Unbind(ctx context.Context, path string) error {
 	bind := newAMQPBinding(a)
@@ -254,4 +259,27 @@ func (a *AmqpManagement) NotifyStatusChange(channel chan *StateChanged) {
 
 func (a *AmqpManagement) State() ILifeCycleState {
 	return a.lifeCycle.State()
+}
+
+// GetQueues returns a list of all queues from RabbitMQ
+func (a *AmqpManagement) GetQueues(ctx context.Context) ([]*AmqpQueueInfo, error) {
+	result, err := a.Request(ctx, amqp.Null{}, "/"+queues, commandGet, []int{responseCode200})
+	if err != nil {
+		return nil, err
+	}
+
+	// The result is a map with a single key "queues" that contains an array of queue information
+	queuesArray, ok := result["queues"].([]interface{})
+	if !ok {
+		return []*AmqpQueueInfo{}, nil
+	}
+
+	queueInfos := make([]*AmqpQueueInfo, 0, len(queuesArray))
+	for _, queueData := range queuesArray {
+		if queueMap, ok := queueData.(map[string]interface{}); ok {
+			queueInfos = append(queueInfos, newAmqpQueueInfo(queueMap))
+		}
+	}
+
+	return queueInfos, nil
 }

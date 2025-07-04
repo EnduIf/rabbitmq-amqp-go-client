@@ -15,10 +15,14 @@ type AMQPBinding struct {
 	toQueue         bool
 	bindingKey      string
 	management      *AmqpManagement
+	arguments       map[string]any
 }
 
 func newAMQPBinding(management *AmqpManagement) *AMQPBinding {
-	return &AMQPBinding{management: management}
+	return &AMQPBinding{
+		management: management,
+		arguments:  make(map[string]any),
+	}
 }
 
 func (b *AMQPBinding) BindingKey(bindingKey string) {
@@ -35,6 +39,12 @@ func (b *AMQPBinding) SourceExchange(sourceName string) {
 func (b *AMQPBinding) Destination(name string, isQueue bool) {
 	b.destinationName = name
 	b.toQueue = isQueue
+}
+
+func (b *AMQPBinding) SetArguments(arguments map[string]any) {
+	if arguments != nil {
+		b.arguments = arguments
+	}
 }
 
 // Bind creates a binding between an exchange and a queue or exchange
@@ -56,7 +66,7 @@ func (b *AMQPBinding) Bind(ctx context.Context) (string, error) {
 	kv["binding_key"] = b.bindingKey
 	kv["source"] = b.sourceName
 	kv[destination] = b.destinationName
-	kv["arguments"] = make(map[string]any)
+	kv["arguments"] = b.arguments
 	_, err := b.management.Request(ctx, kv, path, commandPost, []int{responseCode204})
 	bindingPathWithExchangeQueueAndKey := bindingPathWithExchangeQueueKey(b.toQueue, b.sourceName, b.destinationName, b.bindingKey)
 	return bindingPathWithExchangeQueueAndKey, err

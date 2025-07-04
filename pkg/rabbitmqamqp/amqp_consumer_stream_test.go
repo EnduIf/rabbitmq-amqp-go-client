@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/Azure/go-amqp"
+	testhelper "github.com/enduif/rabbitmq-amqp-go-client/pkg/test-helper"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	testhelper "github.com/rabbitmq/rabbitmq-amqp-go-client/pkg/test-helper"
 	"sync"
 	"time"
 )

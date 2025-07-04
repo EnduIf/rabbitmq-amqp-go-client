@@ -1,4 +1,4 @@
-module github.com/rabbitmq/rabbitmq-amqp-go-client
+module github.com/enduif/rabbitmq-amqp-go-client
 
 go 1.23.0
 
